@@ -1,14 +1,22 @@
+'use strict'
+
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
+require('dotenv').config()
 
 const cors = require('cors')
 
 const mongoose = require('mongoose')
+
 mongoose.connect("mongodb+srv://"+ process.env.MONGO_USER +":"+ process.env.MONGO_PASS +"@cluster0.nlxxb.mongodb.net/" +process.env.MONGO_DB,
   {useNewUrlParser: true,
   useUnifiedTopology: true
   });
+// mongoose.connect(MONGO_URI,
+//   {useNewUrlParser: true,
+//     useUnifiedTopology: true
+//   });
 
 app.use(cors())
 
