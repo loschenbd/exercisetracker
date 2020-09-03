@@ -100,6 +100,17 @@ app.get('/api/exercise/users', (req, res) => {
   })
 })
 
+//View exercise log by ID
+app.get('/api/exercise/log', (req, res) => {
+  User.findById(req.query.userId, (error, result) => {
+    if(!error){
+      let resObj = result;
+      resObj['count'] = result.log.length;
+      res.json(resObj)
+    }
+  })
+});
+
 
 
 // Not found middleware
