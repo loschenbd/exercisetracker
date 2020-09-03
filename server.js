@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
 
 
 //exercise schema
-let exerciseSchema = new mongoose.Schema({
+let workoutSchema = new mongoose.Schema({
   description: {type: String, required: true},
   duration: {type: Number, required: true},
   date: String
@@ -43,11 +43,11 @@ let exerciseSchema = new mongoose.Schema({
 //user schema
 let userSchema = new mongoose.Schema({
   username: {type: String, required: true},
-  log: [exerciseSchema]
+  log: [workoutSchema]
 });
 
 //Declare models
-let Exercise = mongoose.model('Exercise', exerciseSchema);
+let Workout = mongoose.model('Workout', workoutSchema);
 let User = mongoose.model('User', userSchema);
 
 //Writes user to db
@@ -64,8 +64,34 @@ app.post('/api/exercise/new-user', urlencodedParser, (req, res) => {
   })
 });
 
-// Get Users array
+// Post exercises to user
+app.post('/api/exercise/add', urlencodedParser, (req, res) => {
+  let newWorkout = new Workout({
+    description: req.body.description,
+    duration: parseInt(req.body.duration),
+    date: req.body.date
+  })
+  //Return current date if input left empty.
+  if(newWorkout.date === ''){
+    newWorkout.date = new Date().toISOString().substring(0, 10);
+  }
+  //modify user log
+  User.findByIdAndUpdate(req.body.userId, {$push: {log: newWorkout}}, {new: true, useFindAndModify: false },
+    (error, result) => {
+      if(!error) {
+        let resObj = {};
+        resObj['_id'] = result.id;
+        resObj['username'] = result.username;
+        resObj['date'] = new Date(newWorkout.date).toDateString();
+        resObj['description'] = newWorkout.description;
+        resObj['duration'] = newWorkout.duration;
+        res.json(resObj);
+      }
+  }
+  )
+})
 
+// Get array of users
 app.get('/api/exercise/users', (req, res) => {
   User.find({}, (error, result) => {
     if(!error){
@@ -73,6 +99,8 @@ app.get('/api/exercise/users', (req, res) => {
     }
   })
 })
+
+
 
 // Not found middleware
 app.use((req, res, next) => {
