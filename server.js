@@ -21,10 +21,7 @@ db.once('open', function() {
 });
 // test for improper connections
 mongoose.set('bufferCommands', false);
-
-
-
-
+//
 app.use(cors())
 
 app.use(bodyParser.urlencoded({extended: false}))
@@ -43,7 +40,7 @@ let exerciseSchema = new mongoose.Schema({
   date: String
 });
 
-//username schema
+//user schema
 let userSchema = new mongoose.Schema({
   username: {type: String, required: true},
   log: [exerciseSchema]
@@ -53,6 +50,7 @@ let userSchema = new mongoose.Schema({
 let Exercise = mongoose.model('Exercise', exerciseSchema);
 let User = mongoose.model('User', userSchema);
 
+//Writes user to db
 const urlencodedParser = bodyParser.urlencoded({ extended: false});
 app.post('/api/exercise/new-user', urlencodedParser, (req, res) => {
   let newUser = new User({ username: req.body.username });
@@ -65,6 +63,16 @@ app.post('/api/exercise/new-user', urlencodedParser, (req, res) => {
     }
   })
 });
+
+// Get Users array
+
+app.get('/api/exercise/users', (req, res) => {
+  User.find({}, (error, result) => {
+    if(!error){
+      res.json(result);
+    }
+  })
+})
 
 // Not found middleware
 app.use((req, res, next) => {
@@ -92,6 +100,6 @@ app.use((err, req, res, next) => {
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening at http://localhost:' + listener.address().port)
-})
+});
 
 
