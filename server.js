@@ -6,22 +6,28 @@ const bodyParser = require('body-parser')
 require('dotenv').config()
 
 const cors = require('cors')
-
+var { MongoClient } = require('mongodb')
 const mongoose = require('mongoose')
-
 mongoose.connect("mongodb+srv://"+ process.env.MONGO_USER +":"+ process.env.MONGO_PASS +"@cluster0.nlxxb.mongodb.net/" +process.env.MONGO_DB,
   {useNewUrlParser: true,
   useUnifiedTopology: true
   });
-// mongoose.connect(MONGO_URI,
-//   {useNewUrlParser: true,
-//     useUnifiedTopology: true
-//   });
+
+//Check mongodb connection
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log("we're connected!");
+});
+// test for improper connections
+mongoose.set('bufferCommands', false);
+
+
+
 
 app.use(cors())
 
 app.use(bodyParser.urlencoded({extended: false}))
-app.use(bodyParser.json())
 
 
 app.use(express.static('public'))
@@ -30,9 +36,39 @@ app.get('/', (req, res) => {
 });
 
 
+//exercise schema
+let exerciseSchema = new mongoose.Schema({
+  description: {type: String, required: true},
+  duration: {type: Number, required: true},
+  date: String
+});
+
+//username schema
+let userSchema = new mongoose.Schema({
+  username: {type: String, required: true},
+  log: [exerciseSchema]
+});
+
+//Declare models
+let Exercise = mongoose.model('Exercise', exerciseSchema);
+let User = mongoose.model('User', userSchema);
+
+const urlencodedParser = bodyParser.urlencoded({ extended: false});
+app.post('/api/exercise/new-user', urlencodedParser, (req, res) => {
+  let newUser = new User({ username: req.body.username });
+  newUser.save((error, savedUser) => {
+    if(!error){
+      let resObj = {};
+      resObj['_id'] = savedUser.id;
+      resObj['username'] = savedUser.username;
+      res.json(resObj);
+    }
+  })
+});
+
 // Not found middleware
 app.use((req, res, next) => {
-  return next({status: 404, message: 'not found'})
+  return next({status: 404, message: 'not found1'})
 })
 
 // Error Handling middleware
