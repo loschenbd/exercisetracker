@@ -132,8 +132,9 @@ app.get('/api/exercise/log', (req, res) => {
         resObj.log = resObj.log.slice(0, req.query.limit)
       }
 
+      resObj = resObj.toJSON()
       resObj['count'] = result.log.length;
-      res.json(resObj)
+      res.json(result)
     }
   })
 });
