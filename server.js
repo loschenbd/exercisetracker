@@ -124,10 +124,10 @@ app.get('/api/exercise/log', (req, res) => {
         fromQuery = fromQuery.getTime();
         toQuery = toQuery.getTime();
 
-        resObj.log = resObj.log.filter((workout) => {
-          let workoutTimestamp = new Date(workout.date).getTime();
+        resObj.log = resObj.log.filter((Workout) => {
+          let workoutTimestamp = new Date(Workout.date).getTime();
 
-          return workoutTimestamp >= fromQuery && workoutTimestamp >= toQuery
+          return workoutTimestamp >= fromQuery && workoutTimestamp <= toQuery
         })
 
       }
