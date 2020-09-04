@@ -100,11 +100,15 @@ app.get('/api/exercise/users', (req, res) => {
   })
 })
 
-//View exercise log by ID
+//View exercise log by ID and query (from,to and limit)
 app.get('/api/exercise/log', (req, res) => {
   User.findById(req.query.userId, (error, result) => {
     if(!error) {
       let resObj = result;
+
+      if (req.query.limit) {
+        resObj.log = resObj.log.slice(0, req.query.limit)
+      }
 
       if (req.query.from || req.query.to) {
         let fromQuery = new Date(0);
@@ -116,6 +120,7 @@ app.get('/api/exercise/log', (req, res) => {
         if (req.query.to) {
           toQuery = new Date(req.query.to);
         }
+
         fromQuery = fromQuery.getTime();
         toQuery = toQuery.getTime();
 
@@ -127,14 +132,8 @@ app.get('/api/exercise/log', (req, res) => {
 
       }
 
-
-      if (req.query.limit) {
-        resObj.log = resObj.log.slice(0, req.query.limit)
-      }
-
-      resObj = resObj.toJSON()
       resObj['count'] = result.log.length;
-      res.json(result)
+      res.json(resObj);
     }
   })
 });
